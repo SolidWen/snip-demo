@@ -1,0 +1,9 @@
+{
+  "name": "snip-bundle",
+  "version": "1.0.0",
+  "description": "Snip – self-contained backend + frontend bundle",
+  "scripts": {
+    "start": "bun server.js"
+  },
+  "license": "MIT"
+}
