@@ -1,36 +1,38 @@
 <main>
-  <h1>Snip</h1>
-  <p class="tagline">Tiny URL shortener</p>
+  <div class="hero">
+    <h1>Snip</h1>
+    <p class="tagline">Paste a long URL, get a short one.</p>
+  </div>
 
-  <section class="card">
-    <h2>Shorten a URL</h2>
-    <form (ngSubmit)="submit()" class="form-row">
+  <section class="chat-panel">
+    <form (ngSubmit)="submit()" class="chat-row">
       <input
         type="text"
         [value]="urlInput()"
         (input)="urlInput.set($any($event.target).value)"
         placeholder="https://example.com/very/long/url"
-        class="url-input"
+        class="chat-input"
         [disabled]="submitting()"
       />
-      <button type="submit" [disabled]="submitting()">
-        {{ submitting() ? 'Shortening…' : 'Shorten' }}
+      <button type="submit" class="send-btn" [disabled]="submitting()" aria-label="Shorten URL">
+        @if (submitting()) { <span class="send-icon">···</span> }
+        @else { <span class="send-icon">↑</span> }
       </button>
     </form>
 
     @if (formError()) {
-      <p class="error">{{ formError() }}</p>
+      <p class="notice notice--error">{{ formError() }}</p>
     }
 
     @if (newLink(); as link) {
-      <div class="success">
+      <div class="notice notice--success">
         Short URL:&nbsp;<a [href]="link.shortUrl" target="_blank">{{ link.shortUrl }}</a>
       </div>
     }
   </section>
 
   <section class="card">
-    <h2>All Links</h2>
+    <h2 class="card-label">All links</h2>
     @if (allLinks().length === 0) {
       <p class="empty">No links yet.</p>
     } @else {
@@ -45,7 +47,7 @@
         <tbody>
           @for (link of allLinks(); track link.code) {
             <tr>
-              <td><a [href]="link.shortUrl" target="_blank">{{ link.code }}</a></td>
+              <td><a [href]="link.shortUrl" target="_blank" class="code-link">{{ link.code }}</a></td>
               <td class="url-cell">
                 <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
               </td>
