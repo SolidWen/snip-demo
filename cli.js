@@ -5,8 +5,6 @@
 // Base URL from SNIP_API env var, default http://localhost:3000
 
 const { spawn } = require('child_process');
-const http  = require('http');
-const https = require('https');
 
 const BASE = (process.env.SNIP_API ?? 'http://localhost:3000').replace(/\/$/, '');
 const [,, cmd, arg] = process.argv;
@@ -17,19 +15,6 @@ function die(msg) {
   process.stderr.write(`snip: ${msg}\n`);
   process.exit(1);
 }
-
-/** Raw HTTP GET without following redirects; returns { status, location }. */
-function rawGet(url) {
-  return new Promise((resolve, reject) => {
-    const lib = url.startsWith('https:') ? https : http;
-    lib.get(url, res => {
-      res.resume(); // drain body
-      resolve({ status: res.statusCode, location: res.headers.location ?? null });
-    }).on('error', reject);
-  });
-}
-
-/** Open a URL in the OS default browser, detached. */
 function openBrowser(url) {
   let child;
   if (process.platform === 'win32') {
@@ -86,15 +71,16 @@ async function ls() {
 async function open(code) {
   if (!code) die('missing code\n  usage: snip open <code>');
 
-  // Use a raw HTTP request so we see the 302 + Location without following it.
-  let result;
-  try { result = await rawGet(`${BASE}/${code}`); }
+  // fetch with redirect:'manual' stops at the 302 and exposes Location
+  // (Node 18+ global fetch / undici behaviour — does not follow redirects)
+  let res;
+  try { res = await fetch(`${BASE}/${code}`, { redirect: 'manual' }); }
   catch (e) { die(`backend unreachable — ${e.message}`); }
 
-  if (result.status === 404) die(`unknown code: ${code}`);
-  if (result.status !== 302) die(`unexpected response status ${result.status}`);
+  if (res.status === 404) die(`unknown code: ${code}`);
+  if (res.status !== 302) die(`unexpected response status ${res.status}`);
 
-  const loc = result.location;
+  const loc = res.headers.get('location');
   if (!loc) die('backend returned a 302 with no Location header');
 
   openBrowser(loc);
