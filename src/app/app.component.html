@@ -1,0 +1,60 @@
+<main>
+  <h1>Snip</h1>
+  <p class="tagline">Tiny URL shortener</p>
+
+  <section class="card">
+    <h2>Shorten a URL</h2>
+    <form (ngSubmit)="submit()" class="form-row">
+      <input
+        type="text"
+        [value]="urlInput()"
+        (input)="urlInput.set($any($event.target).value)"
+        placeholder="https://example.com/very/long/url"
+        class="url-input"
+        [disabled]="submitting()"
+      />
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Shortening…' : 'Shorten' }}
+      </button>
+    </form>
+
+    @if (formError()) {
+      <p class="error">{{ formError() }}</p>
+    }
+
+    @if (newLink(); as link) {
+      <div class="success">
+        Short URL:&nbsp;<a [href]="link.shortUrl" target="_blank">{{ link.shortUrl }}</a>
+      </div>
+    }
+  </section>
+
+  <section class="card">
+    <h2>All Links</h2>
+    @if (allLinks().length === 0) {
+      <p class="empty">No links yet.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Original URL</th>
+            <th>Hits</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (link of allLinks(); track link.code) {
+            <tr>
+              <td><a [href]="link.shortUrl" target="_blank">{{ link.code }}</a></td>
+              <td class="url-cell">
+                <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
+              </td>
+              <td class="hits">{{ link.hits }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </section>
+</main>
+
