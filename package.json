@@ -1,0 +1,9 @@
+{
+  "name": "snip-backend",
+  "version": "1.0.0",
+  "description": "Snip – tiny URL shortener (Bun, zero deps)",
+  "scripts": {
+    "start": "bun run server.js"
+  },
+  "license": "MIT"
+}
